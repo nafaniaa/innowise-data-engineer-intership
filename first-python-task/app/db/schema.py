@@ -40,7 +40,9 @@ class SchemaManager:
         finally:
             cursor.close()
         
-        def create_indexes(self):
+
+
+    def create_indexes(self):
             try:
                 cursor = self.connection.cursor()
                 indexes_to_create = {
@@ -61,7 +63,9 @@ class SchemaManager:
 
                     cursor.execute(check_query)
                     
-                    if cursor.fetchone()[0] == 0:
+
+                    result = cursor.fetchone()
+                    if result and (result[0] if isinstance(result, tuple) else result['COUNT(1)']) == 0:
                         cursor.execute(f"CREATE INDEX {index_name} ON {column};")
                         print(f"Индекс {index_name} создан.")
                     else:
