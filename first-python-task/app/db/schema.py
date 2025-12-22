@@ -77,3 +77,12 @@ class SchemaManager:
                 self.connection.rollback()
             finally:
                 cursor.close()
+    
+    def truncate_tables(self):
+        cursor = self.connection.cursor()
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        cursor.execute("TRUNCATE TABLE students;")
+        cursor.execute("TRUNCATE TABLE rooms;")
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+        self.connection.commit()
+        cursor.close()
