@@ -2,6 +2,8 @@ import os
 from dotenv import load_dotenv
 from app.db.connection import DatabaseConnection
 from app.db.schema import SchemaManager
+from app.loaders.rooms_loader import RoomsLoader
+from app.loaders.students_loader import StudentsLoader
 
 load_dotenv()
 
@@ -23,6 +25,10 @@ def main():
         schema.create_tables()
         schema.create_indexes()
         cursor.close()
+
+        RoomsLoader(conn, "rooms.json").run()
+        StudentsLoader(conn, "students.json").run()
+
         conn.close()
     except Exception as e:
         print(f"Ошибка: {e}")    
