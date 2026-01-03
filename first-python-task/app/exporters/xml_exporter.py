@@ -6,9 +6,6 @@ from app.exporters.base_exporter import BaseExporter
 
 class XmlExporter(BaseExporter):
     def export(self, data: list[dict], output_path: str):
-        """
-        Экспорт списка словарей (результата одного SELECT) в XML-файл.
-        """
         root_name = os.path.basename(output_path).replace(".xml", "")
         root = Element(root_name)
 
@@ -22,8 +19,7 @@ class XmlExporter(BaseExporter):
             for key, value in row.items():
                 field = SubElement(item_el, key)
                 field.text = str(value) if value is not None else ""
-
-        # Правильный вызов функции tostring
+                
         rough_string = tostring(root, encoding='utf-8')
 
         reparsed = minidom.parseString(rough_string)
