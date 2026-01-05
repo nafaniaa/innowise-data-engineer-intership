@@ -1,4 +1,4 @@
-# Students & Rooms Analyzer
+# Students & Rooms Analyzer v1
 
 ## Description
 Python application that loads students and rooms data into MySQL database,
@@ -38,7 +38,97 @@ OOP & SOLID principles
 
 JSON / XML export
 
-```bash
+# Students & Rooms Analyzer v2
+ETL process for loading rooms and students data from JSON files into MySQL with incremental loading, full change history, and analytics.
+
+## Main Features
+
+- **Incremental loading** (INSERT/UPDATE/DELETE) — repeated runs update only changed records instead of truncating tables
+- **Full change history**:
+  - `load_history` — details of each load (timestamp, files, statistics)
+  - `rooms_history` and `students_history` — every single change (INSERT/UPDATE/DELETE)
+- **4 analytical queries**
+- **Export results** to JSON (default) or XML
+- **Logging** of all operations
+- **Docker Compose** deployment with isolated MySQL database
+
+## Project Structure
+.
+
+├── main.py                     # Entry point
+
+├── Dockerfile
+
+├── docker-compose.yml
+
+├── requirements.txt
+
+├── .env                        # Create manually (see below)
+
+├── src_data/
+
+│   ├── rooms.json
+
+│   └── students.json
+
+├── sql_queries/
+
+│   ├── ddl/                    # Table creation & history tables
+
+│   ├── dml/                    # Loading operations
+
+│   └── history/                # History-related queries
+
+├── app/
+│   ├── db/                     # Connection & SQLExecutor
+
+│   ├── services/               # LoadService & AnalyticsService
+
+│   └── exporters/              # JSON & XML exporters
+
+└── results/                    # Created automatically — export results
+
+
+## How to Run
+
+### Recommended: Docker Compose
+
+1. Make sure Docker and Docker Compose are installed.
+2. Create `.env` file in the root with the following content:
+- MYSQL_ROOT_PASSWORD=RootPass123!
+- MYSQL_DATABASE=students_db
+- MYSQL_USER=app_user
+- MYSQL_PASSWORD=AppPass123!
+- DB_HOST=db
+- DB_PORT=3306
+- DB_NAME=students_db
+- DB_USER=app_user
+- DB_PASSWORD=AppPass123!
+
+3. Start the project:
+
+
+docker-compose up --build
+- The first run creates tables, loads data, performs analytics, and exports JSON results.
+- Subsequent runs perform incremental updates only.
+- To run with XML export:
+Bashdocker-compose run --rm app python main.py --format xml
+- Results will appear in the results/ folder.
+
+- Quick Run with Docker Image (No Build)
+  
+docker run --rm \
+  -v $(pwd)/results:/app/results \
+  nafaniaaa/first-python-task:latest \
+  --format json
+
+docker run --rm \
+  -v $(pwd)/results:/app/results \
+  nafaniaaa/first-python-task:latest \
+  --format xml
+
+
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
