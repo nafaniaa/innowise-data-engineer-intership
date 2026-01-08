@@ -1,0 +1,1 @@
+SELECT id, name, birthday, sex, room_id FROM students

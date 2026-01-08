@@ -1,0 +1,25 @@
+# --- Секреты и настройки (САМОЕ ВАЖНОЕ) ---
+.env
+*.env
+.secrets
+.venv/
+venv/
+ENV/
+env/
+
+# --- Кэш Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# --- Настройки IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Логи и временные файлы ---
+*.log
+.DS_Store
