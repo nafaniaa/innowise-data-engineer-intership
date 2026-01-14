@@ -13,36 +13,23 @@ def get_components(
 def explode_fin(df: pd.DataFrame, fin_row: pd.Series) -> list[dict]:
     result = []
 
-    fin_material = fin_row["produced_material"]
+    initial_components = get_components(df, fin_row["produced_material"])
 
     stack = []
-    visited = set()
-    seen_edges = set()  # <-- КЛЮЧЕВОЕ
 
-    # --- FIN уровень ---
-    fin_components = get_components(df, fin_material)
-
-    for _, row in fin_components.iterrows():
-        edge = (fin_material, row["component_material"])
-
-        if edge not in seen_edges:
-            seen_edges.add(edge)
-
-            result.append({
-                "fin_material_id": fin_material,
-                "prod_material_id": fin_material,
-                "component_id": row["component_material"],
-                "component_release_type": row["component_material_release_type"],
-                "year": fin_row["year"],
-                "plant": fin_row["plant_id"]
-            })
-
+    for _, row in initial_components.iterrows():
         if row["component_material_release_type"] == "PROD":
-            stack.append(row["component_material"])
+            stack.append(
+                (
+                    row["component_material"],
+                    fin_row["produced_material_quantity"]
+                )
+            )
 
-    # --- PROD уровни ---
+    visited = set()
+
     while stack:
-        current_material = stack.pop()
+        current_material, current_qty = stack.pop()
 
         if current_material in visited:
             continue
@@ -52,21 +39,36 @@ def explode_fin(df: pd.DataFrame, fin_row: pd.Series) -> list[dict]:
         components = get_components(df, current_material)
 
         for _, row in components.iterrows():
-            edge = (current_material, row["component_material"])
+            ratio = (
+                row["component_material_quantity"]
+                / row["produced_material_quantity"]
+            )
 
-            if edge not in seen_edges:
-                seen_edges.add(edge)
+            component_qty = current_qty * ratio
 
-                result.append({
-                    "fin_material_id": fin_material,
-                    "prod_material_id": current_material,
-                    "component_id": row["component_material"],
-                    "component_release_type": row["component_material_release_type"],
-                    "year": fin_row["year"],
-                    "plant": fin_row["plant_id"]
-                })
+            result.append({
+                "plant": fin_row["plant_id"],
+                "year": fin_row["year"],
+
+                "fin_material_id": fin_row["produced_material"],
+                "fin_material_release_type": fin_row["produced_material_release_type"],
+                "fin_material_production_type": fin_row["produced_material_production_type"],
+                "fin_production_quantity": fin_row["produced_material_quantity"],
+
+                "prod_material_id": current_material,
+                "prod_material_release_type": row["produced_material_release_type"],
+                "prod_material_production_type": row["produced_material_production_type"],
+                "prod_material_production_quantity": current_qty,
+
+                "component_id": row["component_material"],
+                "component_material_release_type": row["component_material_release_type"],
+                "component_material_production_type": row["component_material_production_type"],
+                "component_consumption_quantity": component_qty
+            })
 
             if row["component_material_release_type"] == "PROD":
-                stack.append(row["component_material"])
+                stack.append(
+                    (row["component_material"], component_qty)
+                )
 
     return result

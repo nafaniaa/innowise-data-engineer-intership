@@ -1,24 +1,12 @@
 from src.io import load_bom_excel
-from src.preprocessing import preprocess_bom
-from src.explosion import get_fin_materials, explode_fin
-
-import pandas as pd
+from src.pipeline import build_bom_pipeline
 
 
 def main():
     df = load_bom_excel("data/task_2_data_ex.xlsx")
-    df = preprocess_bom(df)
+    final_df = build_bom_pipeline(df)
 
-    fin_df = get_fin_materials(df)
-
-    all_rows = []
-
-    for _, fin_row in fin_df.iterrows():
-        exploded = explode_fin(df, fin_row)
-        all_rows.extend(exploded)
-
-    result_df = pd.DataFrame(all_rows)
-    print(result_df.head())
+    print(final_df.tail())
 
 
 if __name__ == "__main__":
