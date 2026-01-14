@@ -12,16 +12,35 @@ def get_components(
 
 def explode_fin(df: pd.DataFrame, fin_row: pd.Series) -> list[dict]:
     result = []
+
+    fin_material = fin_row["produced_material"]
+
     stack = []
+    visited = set()
+    seen_edges = set()  # <-- КЛЮЧЕВОЕ
 
-    initial_components = get_components(df, fin_row["produced_material"])
+    # --- FIN уровень ---
+    fin_components = get_components(df, fin_material)
 
-    for _, row in initial_components.iterrows():
+    for _, row in fin_components.iterrows():
+        edge = (fin_material, row["component_material"])
+
+        if edge not in seen_edges:
+            seen_edges.add(edge)
+
+            result.append({
+                "fin_material_id": fin_material,
+                "prod_material_id": fin_material,
+                "component_id": row["component_material"],
+                "component_release_type": row["component_material_release_type"],
+                "year": fin_row["year"],
+                "plant": fin_row["plant_id"]
+            })
+
         if row["component_material_release_type"] == "PROD":
             stack.append(row["component_material"])
 
-    visited = set()
-
+    # --- PROD уровни ---
     while stack:
         current_material = stack.pop()
 
@@ -33,14 +52,19 @@ def explode_fin(df: pd.DataFrame, fin_row: pd.Series) -> list[dict]:
         components = get_components(df, current_material)
 
         for _, row in components.iterrows():
-            result.append({
-                "fin_material_id": fin_row["produced_material"],
-                "prod_material_id": current_material,
-                "component_id": row["component_material"],
-                "component_release_type": row["component_material_release_type"],
-                "year": fin_row["year"],
-                "plant": fin_row["plant_id"]
-            })
+            edge = (current_material, row["component_material"])
+
+            if edge not in seen_edges:
+                seen_edges.add(edge)
+
+                result.append({
+                    "fin_material_id": fin_material,
+                    "prod_material_id": current_material,
+                    "component_id": row["component_material"],
+                    "component_release_type": row["component_material_release_type"],
+                    "year": fin_row["year"],
+                    "plant": fin_row["plant_id"]
+                })
 
             if row["component_material_release_type"] == "PROD":
                 stack.append(row["component_material"])
