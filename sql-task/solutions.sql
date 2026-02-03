@@ -43,3 +43,15 @@ JOIN payment
 GROUP BY category.name
 ORDER BY total_revenue DESC
 LIMIT 1;
+
+-- 4. Print the names of movies that are not in the inventory. 
+-- Write a query without using the IN operator.
+
+SELECT 
+    film.film_id,
+    film.title
+FROM film
+LEFT JOIN inventory
+    ON inventory.film_id = film.film_id
+WHERE inventory.inventory_id IS NULL;
+
