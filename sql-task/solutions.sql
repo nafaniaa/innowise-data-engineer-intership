@@ -25,3 +25,21 @@ JOIN rental
 GROUP BY actor.actor_id, actor.first_name, actor.last_name
 ORDER BY rental_count DESC
 LIMIT 10;
+
+-- 3. Output the category of movies on which the most money was spent.
+
+SELECT 
+	category.name AS category_name,
+	SUM(payment.amount) AS total_revenue
+FROM category
+JOIN film_category
+    ON film_category.category_id = category.category_id
+JOIN inventory
+    ON inventory.film_id = film_category.film_id
+JOIN rental
+    ON rental.inventory_id = inventory.inventory_id
+JOIN payment
+    ON payment.rental_id = rental.rental_id
+GROUP BY category.name
+ORDER BY total_revenue DESC
+LIMIT 1;
