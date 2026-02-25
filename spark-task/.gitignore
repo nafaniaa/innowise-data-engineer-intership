@@ -1,0 +1,35 @@
+# Виртуальное окружение
+.venv/
+venv/
+env/
+ENV/
+
+# Python (кэш и временные файлы)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Jupyter Notebook (временные файлы)
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Spark/Hadoop (логи и временные директории)
+metastore_db/
+derby.log
+spark-warehouse/
+event_logs/
+*.log
+
+# VS Code
+.vscode/
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# Файлы данных (опционально, если не хотите заливать тяжелые CSV в Git)
+*.csv
+*.json
+*.parquet
+
